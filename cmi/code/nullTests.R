@@ -23,11 +23,13 @@ spl <- model.matrix(y ~ bs(x, df=15))
 
 
 hist(data.df[,3],
-          breaks=50,
-          plot=TRUE)
+     breaks=50,
+     plot=TRUE)
 
-for (tau in 1:3/4) {
+for (tau in 3/4) {
     fit <- rq(y ~ bs(x,df=15), tau=tau)
     dens.fit <- spl %*% fit$coef
     lines(x, dens.fit)
 }
+
+cbind(x, dens.fit)
