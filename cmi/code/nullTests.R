@@ -9,7 +9,7 @@ library("splines")
 library("stats")
 
 setwd("~/academic/projects/grnrecon/cmi/code/")
-data.df <-read.table("../data/microarray/output/GSE2350_mi.out", sep="\t", nrows=10000)
+data.df <-read.table("../data/microarray/output/GSE2350_mi.out", sep="\t", nrows=100000)
 
 y <- hist(data.df[,3],
           breaks=50,
@@ -32,4 +32,5 @@ for (tau in 3/4) {
     lines(x, dens.fit)
 }
 
-cbind(x, dens.fit)
+# find centre of main peak
+predict(fit, x=0:100/50, deriv=1)
