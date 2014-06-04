@@ -19,6 +19,13 @@ y <- hist(z,
           plot=FALSE,
           freq=FALSE)$density
 
+png("HistogramAll.png",
+    width=4,
+    height=4,
+    units="in",
+    res=600,
+    pointsize=6)
+
 x <- hist(z,
           breaks=500,
           plot=FALSE,
@@ -31,8 +38,9 @@ hist(z,
      breaks=50,
      plot=TRUE,
      freq=FALSE,
-     col="gray",
-     ylim=c(0,1.5))
+     col=139,
+     border="white",
+     ylim=c(0,0.8))
 
 for (tau in 1/2) {
     fit <- rq(y ~ bs(x,df=25), tau=tau)
@@ -41,15 +49,25 @@ for (tau in 1/2) {
 }
 
 # find centre of main peak as estimator for mean of empirical null (delta0)
-delta0 <- x[which(abs(predict(fit))==max(abs(predict(fit))))]
+delta0 <- x[which(abs(predict(fit))==max(abs(predict(fit))))] # + 0.1 for testing
 quad.data <- subset(cbind(x,log(dens.fit)), x > delta0-1.5 & x < delta0+1.5)
 quadfit <- lm(quad.data[,2]~quad.data[,1]+I(quad.data[,1]^2))
-sigma0 <- (-2*quadfit[[1]][3])^(-1/2)
+sigma0 <- (-2*quadfit[[1]][3])^(-1/2) # use multiplier of 1.6 for testing
+
 
 # find half width as estimator for sd of empirical null (sigma0)
 #curve(quadfit[[1]][1]+quadfit[[1]][2]*x+quadfit[[1]][3]*x^2, from = -2, to=2, type="l")
 #points(x, log(dens.fit), ylim=c(-8,10))
 
 
-z0 <- rnorm(1000, delta0, sigma0)
+z0 <- rnorm(100000, delta0, sigma0)
+z0.theo <- rnorm(100000, 0, 1)
 lines(density(z0))
+lines(density(z0.theo), lty=2)
+dev.off()
+
+z0.crit <- qnorm(1-10^-7, delta0, sigma0)
+z.interesting <- z[which(z>z0.crit)]
+i <- z.interesting * sd(data.df[,3]) + mean(data.df[,3])
+i0.crit <- z0.crit * sd(data.df[,3]) + mean(data.df[,3])
+it.crit <- qnorm(1-10^-7, 0, 1)
